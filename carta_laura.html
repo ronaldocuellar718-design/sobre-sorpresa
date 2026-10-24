@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El caso del dedo torpe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dfe6ee;--paper:#fbfcfe;--ink:#1d2b4f;--muted:#55648a;
+  --env:#eef2f8;--flap:#dfe7f2;--back:#d0dbeb;
+  --red:#c8352b;--blue:#2f5fa8;--line:#b9c6dc;
+  --ok-bg:#dcefd9;--ok-ink:#1f4a1a;--wait-bg:#f8e8c4;--wait-ink:#5a3a07;
+  --focus:#2f5fa8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101829;--paper:#1c2842;--ink:#e8edf7;--muted:#a3b0cf;
+    --env:#24314f;--flap:#2d3c5e;--back:#1b2640;
+    --red:#e2685d;--blue:#6d9be0;--line:#3a4a70;
+    --ok-bg:#1f3a1d;--ok-ink:#c6e8bf;--wait-bg:#47361a;--wait-ink:#f6d899;
+    --focus:#9db9ee;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101829;--paper:#1c2842;--ink:#e8edf7;--muted:#a3b0cf;
+  --env:#24314f;--flap:#2d3c5e;--back:#1b2640;
+  --red:#e2685d;--blue:#6d9be0;--line:#3a4a70;
+  --ok-bg:#1f3a1d;--ok-ink:#c6e8bf;--wait-bg:#47361a;--wait-ink:#f6d899;
+  --focus:#9db9ee;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Kalam','Segoe Print','Bradley Hand',cursive;line-height:1.6}
+.wrap{max-width:380px;margin:0 auto;padding:28px 16px 48px}
+h1{font-family:'Special Elite','Courier New',monospace;font-weight:400;font-size:27px;line-height:1.2;margin:0 0 6px;text-align:left}
+.sub{font-family:'Special Elite','Courier New',monospace;font-size:14px;color:var(--muted);margin:0 0 4px}
+.hint{font-family:'Special Elite','Courier New',monospace;font-size:13px;color:var(--muted);margin:0 0 18px}
+
+.env{display:block;width:100%;padding:8px;border:0;cursor:pointer;color:inherit;font:inherit;text-align:left;
+  background:repeating-linear-gradient(135deg,var(--red) 0 14px,var(--paper) 14px 24px,var(--blue) 24px 38px,var(--paper) 38px 48px);
+  border-radius:4px}
+.env:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.inner{display:block;position:relative;height:214px;background:var(--back);overflow:visible}
+.pocket{position:absolute;inset:0;display:block;background:var(--env);clip-path:polygon(0 0,50% 48%,100% 0,100% 100%,0 100%);z-index:1}
+.flap{position:absolute;left:0;right:0;top:0;height:48%;display:block;background:var(--flap);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .55s ease,opacity .2s ease .35s;z-index:2}
+.flap span{position:absolute;top:10px;left:12px;font-family:'Special Elite','Courier New',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.env.open .flap{transform:rotateX(180deg);opacity:0}
+.seal{position:absolute;left:50%;top:80px;width:42px;height:42px;margin-left:-21px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Special Elite','Courier New',monospace;font-size:24px;z-index:4;transition:opacity .3s}
+.env.open .seal{opacity:0}
+.addr{position:absolute;left:12px;bottom:10px;width:62%;z-index:3;font-family:'Special Elite','Courier New',monospace;font-size:12px;line-height:1.45;color:var(--ink)}
+.addr b{font-weight:400;color:var(--muted)}
+.urgent{position:absolute;right:12px;bottom:16px;z-index:3;transform:rotate(-8deg);border:2px solid var(--red);color:var(--red);padding:3px 8px;font-family:'Special Elite','Courier New',monospace;font-size:15px}
+.stamp{position:absolute;top:8px;right:8px;width:48px;height:56px;z-index:3;border:2px dashed var(--blue);background:var(--env);display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Special Elite','Courier New',monospace;font-size:10px;line-height:1.2;color:var(--blue)}
+.mark{position:absolute;top:18px;right:42px;width:58px;height:58px;z-index:3;border:1.5px solid var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-12deg);font-family:'Special Elite','Courier New',monospace;font-size:9px;line-height:1.2;color:var(--red)}
+
+.letter{max-height:0;opacity:0;overflow:hidden;visibility:hidden;transition:max-height 1.1s ease,opacity .6s ease .15s,visibility 0s linear 1.1s}
+.letter.show{max-height:1600px;opacity:1;visibility:visible;transition:max-height 1.1s ease,opacity .6s ease .15s,visibility 0s}
+.paper{margin-top:18px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:22px 20px 20px}
+.paper p{margin:0 0 14px;font-size:18px}
+.paper .sign{margin:6px 0 14px;font-weight:700}
+.paper .ps{font-size:16px;color:var(--muted);margin:0 0 4px}
+.paper p{opacity:0;transform:translateY(6px)}
+.letter.show .paper p{animation:in .5s ease forwards}
+.letter.show .paper p:nth-child(1){animation-delay:.5s}
+.letter.show .paper p:nth-child(2){animation-delay:.9s}
+.letter.show .paper p:nth-child(3){animation-delay:1.3s}
+.letter.show .paper p:nth-child(4){animation-delay:1.7s}
+.letter.show .paper p:nth-child(5){animation-delay:2.1s}
+.letter.show .paper p:nth-child(6){animation-delay:2.5s}
+.letter.show .paper p:nth-child(7){animation-delay:2.9s}
+@keyframes in{to{opacity:1;transform:none}}
+
+.choose{font-family:'Special Elite','Courier New',monospace;font-size:15px;color:var(--muted);margin:22px 0 10px}
+.opts{display:grid;gap:10px}
+.opt{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:17px;line-height:1.35;cursor:pointer}
+.opt:hover{border-color:var(--blue)}
+.opt:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.opt[aria-pressed="true"]{border-color:var(--blue);border-width:2px}
+.reply{display:none;margin-top:14px;padding:14px 16px;border-radius:6px;font-size:17px;line-height:1.5}
+.reply.yes{background:var(--ok-bg);color:var(--ok-ink)}
+.reply.no{background:var(--wait-bg);color:var(--wait-ink)}
+.reply.show{display:block;animation:in .4s ease forwards}
+
+@media (prefers-reduced-motion:reduce){
+  .flap,.seal,.letter,.letter.show{transition:none}
+  .letter.show .paper p,.reply.show{animation:none;opacity:1;transform:none}
+  .paper p{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>El caso del dedo torpe</h1>
+  <p class="sub">Expediente n.º 001: disculpas oficiales</p>
+  <p class="hint" id="hint">Abrir solo con buen ánimo. Toca el sobre.</p>
+
+  <button class="env" id="env" type="button" aria-expanded="false" aria-controls="letter" aria-label="Abrir el sobre">
+    <span class="inner">
+      <span class="pocket"></span>
+      <span class="flap"><span>CONFIDENCIAL</span></span>
+      <span class="seal" aria-hidden="true">!</span>
+      <span class="stamp" aria-hidden="true">SELLO<br>1 disculpa</span>
+      <span class="mark" aria-hidden="true">OCT 24<br>2026</span>
+      <span class="addr"><b>Para:</b> Laura<br><b>De:</b> Ronaldo<br><b>Asunto:</b> disculpas creativas, a pedido de la destinataria</span>
+      <span class="urgent" aria-hidden="true">URGENTE</span>
+    </span>
+  </button>
+
+  <section class="letter" id="letter" aria-label="Carta de disculpas">
+    <div class="paper">
+      <p>Estimada Laura:</p>
+      <p>Como ya sabes, hoy en la mañana dejé de seguirte. Y como te expliqué, todo fue un malentendido: mi dedo fue más rápido que mi cerebro, y mi cerebro todavía no se había tomado el café.</p>
+      <p>Para que conste en actas: no fue un plan secreto, ni una estrategia, ni un complot internacional. Fue un toque torpe. El dedo ya fue regañado y está en penitencia.</p>
+      <p>Me pediste que te pidiera disculpas de forma creativa, así que aquí tienes este expediente oficial, que es lo más creativo que puede hacer un cerebro sin cafeína.</p>
+      <p>Lamento de verdad haberte hecho pasar un mal rato por un toque de más. Por eso te envié una nueva solicitud de seguimiento, esta vez con el dedo bien supervisado.</p>
+      <p class="sign">Atentamente,<br>Ronaldo, responsable del dedo</p>
+      <p class="ps">P. D.: el dedo ya no tiene permiso de usar Instagram sin supervisión.</p>
+    </div>
+
+    <p class="choose">Tú decides:</p>
+    <div class="opts">
+      <button class="opt" id="yes" type="button" aria-pressed="false">Te perdono, acepto tu solicitud</button>
+      <button class="opt" id="no" type="button" aria-pressed="false">Todavía no, sigue esperando</button>
+    </div>
+    <div aria-live="polite">
+      <div class="reply yes" id="ryes">Gracias, Laura. El dedo promete portarse bien. Solo falta que aceptes mi solicitud en Instagram.</div>
+      <div class="reply no" id="rno">Entendido. Sigo aguardando pacientemente, sin presionar. Gracias por leer el expediente de todas formas.</div>
+    </div>
+  </section>
+</main>
+<script>
+(function(){
+  var env=document.getElementById('env'),letter=document.getElementById('letter'),hint=document.getElementById('hint');
+  var yes=document.getElementById('yes'),no=document.getElementById('no');
+  var ry=document.getElementById('ryes'),rn=document.getElementById('rno');
+  function toggle(){
+    var open=env.classList.toggle('open');
+    letter.classList.toggle('show',open);
+    env.setAttribute('aria-expanded',open?'true':'false');
+    env.setAttribute('aria-label',open?'Cerrar el sobre':'Abrir el sobre');
+    hint.textContent=open?'Toca el sobre otra vez para cerrarlo.':'Abrir solo con buen ánimo. Toca el sobre.';
+  }
+  function pick(isYes){
+    yes.setAttribute('aria-pressed',isYes?'true':'false');
+    no.setAttribute('aria-pressed',isYes?'false':'true');
+    ry.classList.toggle('show',isYes);
+    rn.classList.toggle('show',!isYes);
+  }
+  env.addEventListener('click',toggle);
+  yes.addEventListener('click',function(){pick(true)});
+  no.addEventListener('click',function(){pick(false)});
+})();
+</script>
+</body>
+</html>
